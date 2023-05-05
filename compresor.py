@@ -1,5 +1,6 @@
 import os
 import sys
+
 import numpy as np
 
 
@@ -70,7 +71,7 @@ def huffman_code(freq_dict):
     return code_dict
 
 
-def compress_file(filename, code_dict):
+def compress_file(filename, code_dict, interlineado):
     try:
         with open(filename, "r", encoding="ISO-8859-1") as f:
             text = f.read()
@@ -78,7 +79,7 @@ def compress_file(filename, code_dict):
         compressed_string = ""
         for char in text:
             compressed_string += code_dict[char]
-        generate_Compressed_File(compressed_string, code_dict)
+        generate_Compressed_File(compressed_string, code_dict, interlineado)
         return compressed_string
     except FileNotFoundError:
         print("Archivo no encontrado")
@@ -86,12 +87,12 @@ def compress_file(filename, code_dict):
         print("Error al comprimir el archivo")
 
 
-def generate_Compressed_File(compressed_string, code_dict):
+def generate_Compressed_File(compressed_string, code_dict, interlineado):
     compressed_bytes = []
     byte_str = ""
 
     with open("comprimido.elmejorprofesor", "wb") as f:
-        np.save(f, code_dict)
+        np.save(f, (code_dict, interlineado))
         f.write(StrToBin(compressed_string))
         f.close()
 
@@ -110,9 +111,9 @@ def generate_txt(filename, code_dict):
         for char in text:
             compressed_string += code_dict[char]
 
-        """ with open("lista_01.txt", "w") as f:
+        with open("lista_01.txt", "w") as f:
             f.write(compressed_string)
-            f.close()"""
+            f.close()
 
         return compressed_string
     except FileNotFoundError:
@@ -122,11 +123,9 @@ def generate_txt(filename, code_dict):
 
 
 print("<------ Bienvenidos al sistema de compresión PYTHON ------>")
-#filename = str(input("Ingrese el nombre del archivo: ")) 
+# filename = str(input("Ingrese el nombre del archivo: "))
 # ext = str(input("Si desea ingrese extensión de archivos a comprimir: "))
-
-filename = sys.argv[1]
-if verify_path_exists(filename):
+"""if verify_path_exists(filename):
     with open(filename, "r", encoding="ISO-8859-1") as f:
         text = f.read()
     compress_file(
@@ -134,3 +133,28 @@ if verify_path_exists(filename):
     )  # Función para comprimir el archivo
     generate_txt(filename, huffman_code(frequency_dict(text)))
     print("Se generó su archivo comprimido")
+else:
+    print("Error: La ruta especificada NO existe")"""
+
+startTime = np.datetime64("now")
+filename = sys.argv[1]
+if verify_path_exists(filename):
+    with open(filename, "r", encoding="ISO-8859-1") as f:
+        text = f.read()
+    if "\n" in text:
+        interlineado = "\n"
+    else:
+        interlineado = "\r\n"
+    compress_file(
+        filename, huffman_code(frequency_dict(text)), interlineado
+    )  # Función para comprimir el archivo
+    generate_txt(filename, huffman_code(frequency_dict(text)))
+    print("Se generó su archivo comprimido")
+    compressOk = np.datetime64("now")
+    time = compressOk - startTime
+    print(
+        "Se demoró ",
+        time / np.timedelta64(1, "s"),
+        " segundos en comprimir el archivo: ",
+        filename,
+    )

@@ -1,5 +1,6 @@
 import os
 import sys
+
 import numpy as np
 
 
@@ -16,15 +17,18 @@ def StrToIntArray(str):
 def open_compressed_file(archivo):
     try:
         with open(archivo, "rb") as f:
-            code_dict = np.load(f, allow_pickle=True)
+            data = np.load(f, allow_pickle=True)
+            code_dict = data[0]
+            interlineado = data[1]
             compressed_string = f.read()
             f.close()
         compressed_string = BintoStr(compressed_string)
-        code_dict = code_dict.item()
         decoded_text = decompress_string(compressed_string, code_dict)
         posicion_ultimo_espacio = decoded_text.rfind(" ")
         nueva_cadena = decoded_text[:posicion_ultimo_espacio]
-        generate_DesCompressed_File("descomprimido-elmejorprofesor.txt", nueva_cadena)
+        generate_DesCompressed_File(
+            "descomprimido-elmejorprofesor.txt", nueva_cadena, interlineado
+        )
     except FileNotFoundError:
         print("Archivo no encontrado")
     except ValueError:
@@ -36,8 +40,8 @@ def BintoStr(binary_data):
     return bin_str
 
 
-def generate_DesCompressed_File(file_name, decoded_text):
-    with open(file_name, "w", newline="\r\n", encoding="ISO-8859-1") as f:
+def generate_DesCompressed_File(file_name, decoded_text, interlineado):
+    with open(file_name, "w", newline=interlineado, encoding="ISO-8859-1") as f:
         f.write(decoded_text)
         f.close()
 
@@ -58,6 +62,7 @@ def decompress_string(compressed_string, code_dict):
     return decoded_text
 
 
+startTime = np.datetime64("now")
 print("<------ Bienvenidos al sistema de descompresión PYTHON ------>")
 # filename = str(input("Ingrese la ubicación del archivo a descomprimir: "))
 filename = "comprimido.elmejorprofesor"
@@ -66,3 +71,8 @@ if verify_path_exists(filename):
     print("Se generó su archivo descomprimido")
 else:
     print("Error: La ruta especificada NO existe")
+descompressOk = np.datetime64("now")
+time = descompressOk - startTime
+print(
+    "Se demoró ", time / np.timedelta64(1, "s"), " segundos en descomprimir el archivo"
+)
