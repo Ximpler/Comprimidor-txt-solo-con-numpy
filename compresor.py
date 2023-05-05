@@ -122,6 +122,16 @@ def generate_txt(filename, code_dict):
         print("Error al comprimir el archivo")
 
 
+def ver_interlineado(filename):
+    with open(filename, "rb") as f:
+        contenido = f.read()
+
+    if b"\r\n" in contenido:
+        return "\r\n"
+    else:
+        return "\n"
+
+
 print("<------ Bienvenidos al sistema de compresión PYTHON ------>")
 # filename = str(input("Ingrese el nombre del archivo: "))
 # ext = str(input("Si desea ingrese extensión de archivos a comprimir: "))
@@ -139,12 +149,9 @@ else:
 startTime = np.datetime64("now")
 filename = sys.argv[1]
 if verify_path_exists(filename):
-    with open(filename, "r", encoding="ISO-8859-1") as f:
+    with open(filename, "r", encoding="ISO-8859-1", newline="") as f:
         text = f.read()
-    if "\n" in text:
-        interlineado = "\n"
-    else:
-        interlineado = "\r\n"
+    interlineado = ver_interlineado(filename)
     compress_file(
         filename, huffman_code(frequency_dict(text)), interlineado
     )  # Función para comprimir el archivo
