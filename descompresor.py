@@ -1,6 +1,5 @@
 import os
 import sys
-
 import numpy as np
 
 
@@ -22,13 +21,7 @@ def open_compressed_file(archivo):
             interlineado = data[1]
             compressed_string = f.read()
             f.close()
-        compressed_string = BintoStr(compressed_string)
-        decoded_text = decompress_string(compressed_string, code_dict)
-        posicion_ultimo_espacio = decoded_text.rfind(" ")
-        nueva_cadena = decoded_text[:posicion_ultimo_espacio]
-        generate_DesCompressed_File(
-            "descomprimido-elmejorprofesor.txt", nueva_cadena, interlineado
-        )
+        return code_dict, interlineado, compressed_string
     except FileNotFoundError:
         print("Archivo no encontrado")
     except ValueError:
@@ -49,7 +42,6 @@ def generate_DesCompressed_File(file_name, decoded_text, interlineado):
 def decompress_string(compressed_string, code_dict):
     # Invertir el diccionario de códigos Huffman para buscar los símbolos por código
     inverse_dict = {code_dict[char]: char for char in code_dict}
-
     # Decodificar la cadena comprimida
     decoded_text = ""
     code = ""
@@ -64,10 +56,17 @@ def decompress_string(compressed_string, code_dict):
 
 startTime = np.datetime64("now")
 print("<------ Bienvenidos al sistema de descompresión PYTHON ------>")
-# filename = str(input("Ingrese la ubicación del archivo a descomprimir: "))
 filename = "comprimido.elmejorprofesor"
 if verify_path_exists(filename):
-    open_compressed_file(filename)
+    code_dict, interlineado, compressed_string = open_compressed_file(filename)
+    #pasar de binario a string el comprimido (01010 -> "01010")
+    compressed_string = BintoStr(compressed_string)
+    #decodificar el string binario
+    decoded_text = decompress_string(compressed_string, code_dict)
+    #muerto en el closet
+    posicion_ultimo_espacio = decoded_text.rfind(" ")
+    nueva_cadena = decoded_text[:posicion_ultimo_espacio]
+    generate_DesCompressed_File("descomprimido-elmejorprofesor.txt", nueva_cadena, interlineado)
     print("Se generó su archivo descomprimido")
 else:
     print("Error: La ruta especificada NO existe")
